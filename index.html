@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.2">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="it"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;AuraMaster - AI &amp; Algorithmic Mastering Studio&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="style.css"&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1&gt;AURA&lt;span&gt;MASTER&lt;/span&gt;&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;Mastering professionale istantaneo nel tuo browser&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;main&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Area di caricamento file --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;section class="upload-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="file" id="audio-input" accept="audio/*" hidden&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="audio-input" class="drop-zone" id="drop-zone"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="icon"&gt;🎵&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;&lt;strong&gt;Trascina qui il tuo brano&lt;/strong&gt; oppure &lt;span&gt;Sfoglia i file&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;small&gt;Supporta WAV, MP3, FLAC (Consigliato file non masterizzato a 24-bit)&lt;/small&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Dashboard di Mastering (Nascosta all'inizio) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;section class="dashboard" id="dashboard" style="display: none;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="track-info"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="file-name"&gt;Titolo Brano.wav&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="reupload-btn"&gt;Carica un altro brano&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Controlli Preset --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="presets-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3&gt;Scegli lo Stile di Mastering&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="preset-buttons"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="preset-btn active" data-preset="balanced"&gt;Balanced Neutral&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="preset-btn" data-preset="warm"&gt;Warm &amp; Analog&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="preset-btn" data-preset="punchy"&gt;Punchy &amp; Club&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="preset-btn" data-preset="bright"&gt;Crisp &amp; Pop&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Controlli Manuali ("Smanettamento") --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="controls-grid"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="control-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="loudness"&gt;Loudness (LUFS Boost)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="range" id="loudness" min="0" max="100" value="50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="control-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="warmth"&gt;Warmth (Bassi / Saturazione)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="range" id="warmth" min="0" max="100" value="30"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="control-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="clarity"&gt;Clarity (Alti / Dettaglio)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="range" id="clarity" min="0" max="100" value="40"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="control-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="width"&gt;Stereo Width (Ampiezza)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="range" id="width" min="0" max="100" value="50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Player e A/B Test --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="player-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="ab-switch"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="ab-btn" class="ab-active"&gt;Master Processing [ON]&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="player-controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="play-btn"&gt;▶ Play&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="range" id="seekbar" value="0" min="0" max="100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Download &amp; Donazione --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="action-zone"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="export-btn" class="primary-btn"&gt;⚡ Esporta il Master in HD&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/section&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/main&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="app.js"&gt;&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
