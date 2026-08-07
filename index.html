@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraMaster - AI & Algorithmic Mastering Studio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AURA<span>MASTER</span></h1>
+            <p>Mastering professionale istantaneo nel tuo browser</p>
+        </header>
+
+        <main>
+            <section class="upload-section">
+                <input type="file" id="audio-input" accept="audio/*" hidden>
+                <label for="audio-input" class="drop-zone" id="drop-zone">
+                    <div class="icon">🎵</div>
+                    <p><strong>Trascina qui il tuo brano</strong> oppure <span>Sfoglia i file</span></p>
+                    <small>Supporta WAV, MP3, FLAC (Consigliato file non masterizzato a 24-bit)</small>
+                </label>
+            </section>
+
+            <section class="dashboard" id="dashboard" style="display: none;">
+                <div class="track-info">
+                    <span id="file-name">Titolo Brano.wav</span>
+                    <button id="reupload-btn">Carica un altro brano</button>
+                </div>
+
+                <div class="presets-container">
+                    <h3>Scegli lo Stile di Mastering</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-btn active" data-preset="balanced">Balanced Neutral</button>
+                        <button class="preset-btn" data-preset="warm">Warm & Analog</button>
+                        <button class="preset-btn" data-preset="punchy">Punchy & Club</button>
+                        <button class="preset-btn" data-preset="bright">Crisp & Pop</button>
+                    </div>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-card">
+                        <label for="loudness">Loudness (LUFS Boost)</label>
+                        <input type="range" id="loudness" min="0" max="100" value="50">
+                    </div>
+                    <div class="control-card">
+                        <label for="warmth">Warmth (Bassi / Saturazione)</label>
+                        <input type="range" id="warmth" min="0" max="100" value="30">
+                    </div>
+                    <div class="control-card">
+                        <label for="clarity">Clarity (Alti / Dettaglio)</label>
+                        <input type="range" id="clarity" min="0" max="100" value="40">
+                    </div>
+                    <div class="control-card">
+                        <label for="width">Stereo Width (Ampiezza)</label>
+                        <input type="range" id="width" min="0" max="100" value="50">
+                    </div>
+                </div>
+
+                <div class="player-container">
+                    <div class="ab-switch">
+                        <button id="ab-btn" class="ab-active">Master Processing [ON]</button>
+                    </div>
+                    <div class="player-controls">
+                        <button id="play-btn">▶ Play</button>
+                        <input type="range" id="seekbar" value="0" min="0" max="100">
+                    </div>
+                </div>
+
+                <div class="action-zone">
+                    <button id="export-btn" class="primary-btn">⚡ Esporta il Master in HD</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
