@@ -1,288 +1,130 @@
-let audioCtx;
-let sourceNode;
-let lowEqNode, highEqNode, compressorNode, masterGainNode;
-let audioBuffer = null;
-let isPlaying = false;
-let isBypassed = false;
-let startTime = 0;
-let pauseOffset = 0;
+document.addEventListener('DOMContentLoaded', () => {
+  
+  // Element References
+  const waveformContainer = document.getElementById('waveformContainer');
+  const waveformProgress = document.getElementById('waveformProgress');
+  const waveformHandle = document.getElementById('waveformHandle');
+  const timeDisplay = document.getElementById('timeDisplay');
+  const playBtn = document.getElementById('playBtn');
+  const presetBtns = document.querySelectorAll('.preset-btn');
+  
+  // Controls
+  const subsonicCut = document.getElementById('subsonicCut');
+  const subsonicValue = document.getElementById('subsonicValue');
+  const bassBoost = document.getElementById('bassBoost');
+  const bassValue = document.getElementById('bassValue');
+  const targetLufs = document.getElementById('targetLufs');
+  const lufsValue = document.getElementById('lufsValue');
 
-// UI Elements
-const audioInput = document.getElementById('audio-input');
-const dropZone = document.getElementById('drop-zone');
-const dashboard = document.getElementById('dashboard');
-const fileNameDisplay = document.getElementById('file-name');
-const playBtn = document.getElementById('play-btn');
-const abBtn = document.getElementById('ab-btn');
-const seekbar = document.getElementById('seekbar');
-const reuploadBtn = document.getElementById('reupload-btn');
+  // Playback State
+  let isPlaying = false;
+  let isDragging = false;
+  let trackDuration = 210; // Default mockup duration (3:30 in seconds)
+  let currentPositionRatio = 0.0; // 0.0 to 1.0
 
-// Sliders and Readouts
-const loudnessSlider = document.getElementById('loudness');
-const warmthSlider = document.getElementById('warmth');
-const claritySlider = document.getElementById('clarity');
-const widthSlider = document.getElementById('width');
-
-const valLoudness = document.getElementById('val-loudness');
-const valWarmth = document.getElementById('val-warmth');
-const valClarity = document.getElementById('val-clarity');
-const valWidth = document.getElementById('val-width');
-
-function initAudio() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-}
-
-audioInput.addEventListener('change', handleFile);
-reuploadBtn.addEventListener('click', () => {
-    if (isPlaying) pauseAudio();
-    audioInput.click();
-});
-
-function handleFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    initAudio();
-    fileNameDisplay.textContent = file.name;
-
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-        audioCtx.decodeAudioData(evt.target.result, function(buffer) {
-            audioBuffer = buffer;
-            dropZone.style.display = 'none';
-            dashboard.style.display = 'block';
-            seekbar.max = buffer.duration;
-            setupAudioChain();
-        });
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-function setupAudioChain() {
-    lowEqNode = audioCtx.createBiquadFilter();
-    lowEqNode.type = 'lowshelf';
-    lowEqNode.frequency.value = 100;
-
-    highEqNode = audioCtx.createBiquadFilter();
-    highEqNode.type = 'highshelf';
-    highEqNode.frequency.value = 8000;
-
-    compressorNode = audioCtx.createDynamicsCompressor();
-    compressorNode.threshold.value = -16;
-    compressorNode.knee.value = 10;
-    compressorNode.ratio.value = 3;
-    compressorNode.attack.value = 0.01;
-    compressorNode.release.value = 0.1;
-
-    masterGainNode = audioCtx.createGain();
+  // 1. Interactive Waveform Scrubbing
+  function updateScrubbingPosition(clientX) {
+    const rect = waveformContainer.getBoundingClientRect();
+    let offsetX = clientX - rect.left;
     
-    // Apply initial slider values
-    updateParameters();
+    // Constrain within bounds
+    if (offsetX < 0) offsetX = 0;
+    if (offsetX > rect.width) offsetX = rect.width;
 
-    lowEqNode.connect(highEqNode);
-    highEqNode.connect(compressorNode);
-    compressorNode.connect(masterGainNode);
-    masterGainNode.connect(audioCtx.destination);
-}
+    currentPositionRatio = offsetX / rect.width;
+    const progressPercent = currentPositionRatio * 100;
 
-function updateParameters() {
-    if (!lowEqNode) return;
-    
-    const wVal = (warmthSlider.value - 50) / 5;
-    const cVal = (claritySlider.value - 50) / 5;
-    const lVal = 0.5 + (loudnessSlider.value / 50);
+    waveformProgress.style.width = `${progressPercent}%`;
+    waveformHandle.style.left = `${progressPercent}%`;
 
-    lowEqNode.gain.value = wVal;
-    highEqNode.gain.value = cVal;
-    masterGainNode.gain.value = lVal;
+    updateTimeDisplay();
+  }
 
-    valWarmth.textContent = (wVal >= 0 ? '+' : '') + wVal.toFixed(1) + ' dB';
-    valClarity.textContent = (cVal >= 0 ? '+' : '') + cVal.toFixed(1) + ' dB';
-    valLoudness.textContent = '+' + ((lVal - 1) * 6).toFixed(1) + ' dB';
-    valWidth.textContent = (widthSlider.value * 2) + '%';
-}
+  function updateTimeDisplay() {
+    const currentSeconds = Math.floor(currentPositionRatio * trackDuration);
+    const totalMinutes = Math.floor(trackDuration / 60);
+    const totalRemSec = Math.floor(trackDuration % 60);
+    const curMinutes = Math.floor(currentSeconds / 60);
+    const curRemSec = Math.floor(currentSeconds % 60);
 
-// Slider Input Listeners
-[warmthSlider, claritySlider, loudnessSlider, widthSlider].forEach(slider => {
-    slider.addEventListener('input', updateParameters);
-});
+    const pad = (num) => String(num).padStart(2, '0');
+    timeDisplay.textContent = `${pad(curMinutes)}:${pad(curRemSec)} / ${pad(totalMinutes)}:${pad(totalRemSec)}`;
+  }
 
-// Play / Pause Logic
-playBtn.addEventListener('click', () => {
-    if (isPlaying) pauseAudio();
-    else playAudio();
-});
+  // Pointer Events for Dragging Handle
+  waveformContainer.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    updateScrubbingPosition(e.clientX);
+  });
 
-function playAudio() {
-    if (!audioBuffer) return;
-    sourceNode = audioCtx.createBufferSource();
-    sourceNode.buffer = audioBuffer;
-
-    if (isBypassed) {
-        sourceNode.connect(audioCtx.destination);
-    } else {
-        sourceNode.connect(lowEqNode);
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      updateScrubbingPosition(e.clientX);
     }
+  });
 
-    sourceNode.start(0, pauseOffset);
-    startTime = audioCtx.currentTime - pauseOffset;
-    isPlaying = true;
-    playBtn.textContent = '⏸ PAUSE';
-    updateSeekbar();
-}
-
-function pauseAudio() {
-    if (sourceNode) {
-        sourceNode.stop();
-        pauseOffset = audioCtx.currentTime - startTime;
+  window.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
     }
-    isPlaying = false;
-    playBtn.textContent = '▶ PLAY';
-}
+  });
 
-// A/B Toggle
-abBtn.addEventListener('click', () => {
-    isBypassed = !isBypassed;
-    if (isBypassed) {
-        abBtn.textContent = 'Processing: BYPASSED';
-        abBtn.classList.add('bypassed');
-    } else {
-        abBtn.textContent = 'Processing: ENGAGED';
-        abBtn.classList.remove('bypassed');
-    }
+  // Play/Pause Simulation
+  playBtn.addEventListener('click', () => {
+    isPlaying = !isPlaying;
+    playBtn.textContent = isPlaying ? 'PAUSE' : 'PLAY';
+  });
 
-    if (isPlaying) {
-        pauseAudio();
-        playAudio();
-    }
-});
+  // 2. Preset Selection Engine
+  const presetConfigurations = {
+    'nu-soul': { subsonic: 25, bass: 4.0, lufs: -10.0 },
+    'bossa-nova': { subsonic: 20, bass: 1.5, lufs: -14.0 },
+    'techno': { subsonic: 35, bass: 6.0, lufs: -7.5 },
+    'dnb': { subsonic: 30, bass: 5.5, lufs: -8.0 },
+    'funkie-hit': { subsonic: 25, bass: 3.5, lufs: -9.0 },
+    'american-pop': { subsonic: 30, bass: 3.0, lufs: -8.5 },
+    'flamenco': { subsonic: 20, bass: 1.0, lufs: -12.0 },
+    'reggaeton': { subsonic: 30, bass: 6.5, lufs: -8.0 },
+    'ethiopian-reggae': { subsonic: 25, bass: 4.5, lufs: -10.0 },
+    'cantautorato': { subsonic: 20, bass: 2.0, lufs: -12.5 },
+    'chitarra-voce': { subsonic: 20, bass: 0.5, lufs: -14.0 },
+    'ganzo-rnb': { subsonic: 25, bass: 4.0, lufs: -9.5 }
+  };
 
-// Presets Configurator
-const presets = {
-    balanced:    { warmth: 50, clarity: 50, loudness: 55, width: 50 },
-    warm_tape:   { warmth: 75, clarity: 35, loudness: 50, width: 45 },
-    punchy_club: { warmth: 65, clarity: 65, loudness: 75, width: 60 },
-    crisp_pop:   { warmth: 40, clarity: 80, loudness: 65, width: 55 },
-    acoustic:    { warmth: 45, clarity: 60, loudness: 45, width: 50 },
-    lofi:        { warmth: 85, clarity: 20, loudness: 40, width: 35 },
-    heavy_metal: { warmth: 60, clarity: 70, loudness: 85, width: 65 },
-    vocal_master:{ warmth: 35, clarity: 75, loudness: 60, width: 40 },
-    trap_sub:    { warmth: 90, clarity: 55, loudness: 80, width: 55 },
-    airy_vocal:  { warmth: 30, clarity: 90, loudness: 50, width: 50 },
-    jazz:        { warmth: 60, clarity: 45, loudness: 40, width: 45 },
-    stereo_widen:{ warmth: 50, clarity: 60, loudness: 50, width: 90 }
-};
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      presetBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
 
-document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
+      const presetKey = btn.getAttribute('data-preset');
+      const config = presetConfigurations[presetKey];
 
-        const p = presets[e.target.dataset.preset];
-        if (p) {
-            warmthSlider.value = p.warmth;
-            claritySlider.value = p.clarity;
-            loudnessSlider.value = p.loudness;
-            widthSlider.value = p.width;
-            updateParameters();
-        }
+      if (config) {
+        subsonicCut.value = config.subsonic;
+        subsonicValue.textContent = `${config.subsonic} Hz`;
+
+        bassBoost.value = config.bass;
+        bassValue.textContent = `+${config.bass.toFixed(1)} dB`;
+
+        targetLufs.value = config.lufs;
+        lufsValue.textContent = `${config.lufs.toFixed(1)} LUFS`;
+      }
     });
+  });
+
+  // 3. Slider Value Readout Binding
+  subsonicCut.addEventListener('input', (e) => {
+    subsonicValue.textContent = `${e.target.value} Hz`;
+  });
+
+  bassBoost.addEventListener('input', (e) => {
+    bassValue.textContent = `+${parseFloat(e.target.value).toFixed(1)} dB`;
+  });
+
+  targetLufs.addEventListener('input', (e) => {
+    lufsValue.textContent = `${parseFloat(e.target.value).toFixed(1)} LUFS`;
+  });
+
+  // Initial setup
+  updateTimeDisplay();
 });
-
-function updateSeekbar() {
-    if (!isPlaying) return;
-    const currentTime = audioCtx.currentTime - startTime;
-    seekbar.value = currentTime;
-    if (currentTime < audioBuffer.duration) {
-        requestAnimationFrame(updateSeekbar);
-    } else {
-        isPlaying = false;
-        playBtn.textContent = '▶ PLAY';
-        pauseOffset = 0;
-    }
-}
-
-// High-Res WAV Export Engine
-document.getElementById('export-btn').addEventListener('click', () => {
-    if (!audioBuffer) {
-        alert("Please load an audio track first!");
-        return;
-    }
-
-    const offlineCtx = new OfflineAudioContext(
-        audioBuffer.numberOfChannels,
-        audioBuffer.length,
-        audioBuffer.sampleRate
-    );
-
-    const source = offlineCtx.createBufferSource();
-    source.buffer = audioBuffer;
-
-    const lowEq = offlineCtx.createBiquadFilter();
-    lowEq.type = 'lowshelf';
-    lowEq.frequency.value = 100;
-    lowEq.gain.value = lowEqNode ? lowEqNode.gain.value : 0;
-
-    const highEq = offlineCtx.createBiquadFilter();
-    highEq.type = 'highshelf';
-    highEq.frequency.value = 8000;
-    highEq.gain.value = highEqNode ? highEqNode.gain.value : 0;
-
-    const comp = offlineCtx.createDynamicsCompressor();
-    comp.threshold.value = compressorNode ? compressorNode.threshold.value : -16;
-    comp.knee.value = 10;
-    comp.ratio.value = 3;
-
-    const gain = offlineCtx.createGain();
-    gain.gain.value = masterGainNode ? masterGainNode.gain.value : 1.2;
-
-    source.connect(lowEq);
-    lowEq.connect(highEq);
-    highEq.connect(comp);
-    comp.connect(gain);
-    gain.connect(offlineCtx.destination);
-
-    source.start(0);
-
-    offlineCtx.startRendering().then((renderedBuffer) => {
-        const wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
-        const url = URL.createObjectURL(wavBlob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = 'AuraMaster_HD_' + (fileNameDisplay.textContent || 'master.wav');
-        anchor.click();
-    });
-});
-
-function bufferToWave(abuffer, len) {
-    let numOfChan = abuffer.numberOfChannels,
-        length = len * numOfChan * 2 + 44,
-        buffer = new ArrayBuffer(length),
-        view = new DataView(buffer),
-        channels = [], i, sample, offset = 0, pos = 0;
-
-    function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
-    function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
-
-    setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157);
-    setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan);
-    setUint32(abuffer.sampleRate);
-    setUint32(abuffer.sampleRate * 2 * numOfChan);
-    setUint16(numOfChan * 2); setUint16(16);
-    setUint32(0x61746164); setUint32(length - pos - 4);
-
-    for (i = 0; i < abuffer.numberOfChannels; i++) channels.push(abuffer.getChannelData(i));
-
-    while (offset < len) {
-        for (i = 0; i < numOfChan; i++) {
-            sample = Math.max(-1, Math.min(1, channels[i][offset]));
-            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
-            view.setInt16(pos, sample, true);
-            pos += 2;
-        }
-        offset++;
-    }
-    return new Blob([buffer], { type: "audio/wav" });
-}
