@@ -3,138 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AuraMaster Pro | Online Audio Mastering Engine</title>
+  <title>AuraMaster Pro | Analog Synth & Mac Style Mastering Console</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="theme-obsidian">
 
-  <!-- Top Navigation & Branding -->
-  <header class="app-header">
-    <div class="logo-container">
-      <div class="logo-icon"></div>
-      <h1>AURA<span>MASTER PRO</span></h1>
+  <!-- Top Hardware Header Bar -->
+  <header class="mac-titlebar">
+    <div class="mac-controls">
+      <span class="mac-btn close"></span>
+      <span class="mac-btn minimize"></span>
+      <span class="mac-btn zoom"></span>
     </div>
-    <div class="header-actions">
-      <span class="version-tag">v2.4 DSP Engine</span>
-      <button id="themeToggleBtn" class="btn-secondary">Skin: Dark Obsidian</button>
+    <div class="console-title">AURAMASTER PRO // DSP ANALOG RACK ENGINE</div>
+    <div class="header-utilities">
+      <select id="skinSelector" class="skin-dropdown">
+        <option value="theme-obsidian">Skin: Matte Obsidian</option>
+        <option value="theme-vintage">Skin: Vintage Synth Cream</option>
+        <option value="theme-gold">Skin: Gold LE Studio</option>
+      </select>
     </div>
   </header>
 
-  <main class="app-container">
+  <main class="console-container">
 
-    <!-- Upload & Guidance Banner -->
-    <section class="upload-section">
-      <div class="mix-warning-banner">
-        <div class="warning-icon">⚠️</div>
-        <div class="warning-content">
-          <h4>For Best Results: Make Sure Your Mix is Balanced</h4>
-          <p>To get the highest quality master from AuraMaster Pro, keep master bus peaks between <strong>-3 dBFS and -6 dBFS</strong> (no clipping) and disable limiters.</p>
-        </div>
+    <!-- Mix Check Banner (English UI) -->
+    <section class="banner-warning">
+      <div class="warning-badge">⚠️</div>
+      <div class="warning-text">
+        <strong>For Best Results: Ensure a Balanced Mix</strong>
+        <p>Maintain your master bus peaks between <strong>-3 dBFS and -6 dBFS</strong>. Keep limiters OFF and ensure clear low-end dynamics before processing.</p>
       </div>
+    </section>
 
+    <!-- Master File Upload Box -->
+    <section class="upload-rack-module">
       <div class="drop-zone" id="dropZone">
-        <input type="file" id="audioInput" accept="audio/*" hidden>
-        <div class="drop-zone-content">
-          <div class="upload-icon">📁</div>
-          <h3>Drag & Drop your WAV / MP3 file here</h3>
-          <p>or <button class="btn-primary" onclick="document.getElementById('audioInput').click()">Browse File</button></p>
+        <input type="file" id="audioInput" accept="audio/*">
+        <div class="drop-zone-ui">
+          <div class="synth-led green"></div>
+          <h3>DRAG & DROP YOUR MIX HERE</h3>
+          <p>or click to browse your audio file (.WAV, .MP3, .FLAC)</p>
+          <span class="file-name-display" id="fileNameDisplay">No file selected</span>
         </div>
       </div>
     </section>
 
-    <!-- Main DSP Rack Console -->
-    <section class="rack-console">
-      
-      <!-- Preset Selection Panel -->
-      <div class="rack-module presets-module">
-        <div class="module-header">
-          <h3>GENRE & ARTIST PRESETS</h3>
-        </div>
-        <div class="preset-grid">
-          <button class="preset-btn active" data-preset="nu-soul">Nu Soul</button>
-          <button class="preset-btn" data-preset="bossa-nova">Bossa Nova</button>
-          <button class="preset-btn" data-preset="techno">Techno</button>
-          <button class="preset-btn" data-preset="dnb">Drum 'n' Bass</button>
-          <button class="preset-btn" data-preset="funkie-hit">Funkie Hit</button>
-          <button class="preset-btn" data-preset="american-pop">American Pop Hit</button>
-          <button class="preset-btn" data-preset="flamenco">Flamenco</button>
-          <button class="preset-btn" data-preset="reggaeton">Reggaeton / Urban</button>
-          <button class="preset-btn" data-preset="ethiopian-reggae">Ethiopian Reggae Fusion</button>
-          <button class="preset-btn" data-preset="cantautorato">Cantautorato</button>
-          <button class="preset-btn" data-preset="chitarra-voce">Chitarra e Voce</button>
-          <button class="preset-btn signature" data-preset="ganzo-rnb">Ganzo R&B Warmth</button>
+    <!-- 20+ Trendy & In-Vogue Presets Grid -->
+    <section class="rack-module presets-rack">
+      <div class="module-title">
+        <span>PRESET SELECTION ENGINE (20 TRENDING STYLES)</span>
+      </div>
+      <div class="preset-grid">
+        <button class="preset-btn active" data-preset="nu-soul">01. Nu Soul</button>
+        <button class="preset-btn" data-preset="bossa-nova">02. Bossa Nova</button>
+        <button class="preset-btn" data-preset="techno-raw">03. Techno Peak Time</button>
+        <button class="preset-btn" data-preset="dnb-liquid">04. Liquid DnB</button>
+        <button class="preset-btn" data-preset="funkie-groove">05. Funkie Hit</button>
+        <button class="preset-btn" data-preset="american-pop">06. American Pop Hit</button>
+        <button class="preset-btn" data-preset="flamenco-fusion">07. Flamenco Modern</button>
+        <button class="preset-btn" data-preset="reggaeton-urban">08. Reggaeton Flow</button>
+        <button class="preset-btn" data-preset="ethiopian-fusion">09. Ethio Reggae Fusion</button>
+        <button class="preset-btn" data-preset="cantautorato">10. Cantautorato</button>
+        <button class="preset-btn" data-preset="chitarra-voce">11. Acoustic & Voice</button>
+        <button class="preset-btn" data-preset="trap-heavy">12. Modern Trap Sub</button>
+        <button class="preset-btn" data-preset="indie-rock">13. Indie Warm Rock</button>
+        <button class="preset-btn" data-preset="synthwave-80s">14. Retro Synthwave</button>
+        <button class="preset-btn" data-preset="deep-house">15. Deep House Club</button>
+        <button class="preset-btn" data-preset="afrobeats">16. Afro Beats Hit</button>
+        <button class="preset-btn" data-preset="lofi-chill">17. Lo-Fi Chill Hop</button>
+        <button class="preset-btn" data-preset="cinematic">18. Orchestral Epic</button>
+        <button class="preset-btn" data-preset="phonk">19. Drift Phonk Boost</button>
+        <button class="preset-btn signature" data-preset="ganzo-signature">20. GANZO R&B Signature</button>
+      </div>
+    </section>
+
+    <!-- Waveform Canvas & Interactive Player -->
+    <section class="rack-module waveform-rack">
+      <div class="module-title">
+        <span>AUDIO WAVEFORM & REAL-TIME SCRUBBING</span>
+        <span class="time-readout" id="timeDisplay">00:00 / 00:00</span>
+      </div>
+
+      <div class="waveform-box" id="waveformBox">
+        <canvas id="waveformCanvas" width="1000" height="100"></canvas>
+        <div class="scrubber-overlay" id="scrubberOverlay">
+          <div class="scrubber-progress" id="scrubberProgress"></div>
+          <div class="scrubber-handle" id="scrubberHandle"></div>
         </div>
       </div>
 
-      <!-- Waveform & Interactive Player -->
-      <div class="rack-module waveform-module">
-        <div class="module-header">
-          <h3>AUDIO WAVEFORM & SCRUBBING CONTROL</h3>
-          <div class="time-display" id="timeDisplay">00:00 / 00:00</div>
-        </div>
-        
-        <!-- Interactive Seek Bar / Waveform Track -->
-        <div class="waveform-container" id="waveformContainer">
-          <div class="waveform-progress" id="waveformProgress"></div>
-          <div class="waveform-handle" id="waveformHandle"></div>
-          <div class="waveform-placeholder-lines">
-            <!-- Dynamic visual bars generated via JS -->
-          </div>
-        </div>
+      <div class="transport-bar">
+        <button id="playBtn" class="transport-btn main">PLAY / PAUSE</button>
+        <button id="loopBtn" class="transport-btn">LOOP (A/B)</button>
+        <button id="bypassBtn" class="transport-btn toggle">BYPASS DSP</button>
+        <button id="monoBtn" class="transport-btn toggle">MONO CHECK</button>
+      </div>
+    </section>
 
-        <div class="player-controls">
-          <button id="playBtn" class="btn-control">PLAY / PAUSE</button>
-          <button id="loopBtn" class="btn-control">LOOP REGION</button>
-          <button id="bypassBtn" class="btn-control toggle-off">BYPASS PROCESSOR</button>
-          <button id="monoBtn" class="btn-control toggle-off">LISTEN MONO</button>
-        </div>
+    <!-- Analog DSP Controls (Eq, Saturation, Dynamics) -->
+    <section class="rack-module dsp-rack">
+      <div class="module-title">
+        <span>ANALOG SYNTH MASTERING PROCESSOR</span>
       </div>
 
-      <!-- DSP Controls (Knobs & Sliders) -->
-      <div class="rack-module dsp-controls-module">
-        <div class="module-header">
-          <h3>DSP ANALOG PROCESSOR MODULES</h3>
+      <div class="knob-matrix">
+        <!-- Sub Cut -->
+        <div class="knob-card">
+          <label>SUB CUT</label>
+          <input type="range" id="subCut" min="20" max="40" value="30" class="synth-slider">
+          <span class="knob-val" id="subCutVal">30 Hz</span>
         </div>
-        
-        <div class="controls-grid">
-          <!-- Subsonic Cut -->
-          <div class="control-card">
-            <label>Subsonic Cut (Hz)</label>
-            <input type="range" id="subsonicCut" min="20" max="40" value="30" class="slider">
-            <span class="value-readout" id="subsonicValue">30 Hz</span>
-          </div>
 
-          <!-- Psychoacoustic Bass -->
-          <div class="control-card">
-            <label>Bass Enhancer</label>
-            <input type="range" id="bassBoost" min="0" max="12" value="3" class="slider">
-            <span class="value-readout" id="bassValue">+3.0 dB</span>
-          </div>
+        <!-- Bass Enhancer -->
+        <div class="knob-card">
+          <label>BASS ENHANCE</label>
+          <input type="range" id="bassEnhance" min="0" max="12" value="3" step="0.5" class="synth-slider">
+          <span class="knob-val" id="bassVal">+3.0 dB</span>
+        </div>
 
-          <!-- Saturation Type -->
-          <div class="control-card">
-            <label>Saturator Mode</label>
-            <select id="saturationMode" class="select-input">
-              <option value="tube">Tube (Warm)</option>
-              <option value="tape" selected>Tape (Punchy)</option>
-              <option value="germanium">Germanium (Aggressive)</option>
-            </select>
-          </div>
+        <!-- High Exciter -->
+        <div class="knob-card">
+          <label>AIR EXCITER</label>
+          <input type="range" id="airExciter" min="0" max="10" value="2" step="0.5" class="synth-slider">
+          <span class="knob-val" id="airVal">+2.0 dB</span>
+        </div>
 
-          <!-- Target Loudness (LUFS) -->
-          <div class="control-card">
-            <label>Target Loudness</label>
-            <input type="range" id="targetLufs" min="-16" max="-7" value="-9" step="0.5" class="slider">
-            <span class="value-readout" id="lufsValue">-9.0 LUFS</span>
-          </div>
+        <!-- Saturation Mode -->
+        <div class="knob-card">
+          <label>SATURATION</label>
+          <select id="satMode" class="synth-select">
+            <option value="tube">Tube Warmth</option>
+            <option value="tape" selected>Tape Punch</option>
+            <option value="germanium">Germanium Drive</option>
+          </select>
+        </div>
+
+        <!-- Target LUFS -->
+        <div class="knob-card">
+          <label>TARGET LUFS</label>
+          <input type="range" id="lufsTarget" min="-16" max="-7" value="-9" step="0.5" class="synth-slider">
+          <span class="knob-val" id="lufsVal">-9.0 LUFS</span>
         </div>
       </div>
+    </section>
 
-      <!-- Output & Analytics Export -->
-      <div class="rack-module export-module">
-        <button id="exportMasterBtn" class="btn-primary-large">EXPORT HIGH-RES MASTER (.ZIP)</button>
+    <!-- Export & Analytics -->
+    <section class="rack-module export-rack">
+      <button id="exportMasterBtn" class="export-btn">EXPORT MASTERED AUDIO (.ZIP WAVE + MP3)</button>
+    </section>
+
+    <!-- Social & Media Integration Block (Spotify & IG) -->
+    <section class="rack-module promo-rack">
+      <div class="promo-grid">
+        <!-- Spotify Radio -->
+        <div class="spotify-box">
+          <h4>🎵 AURA RADIO // REFERENCE SPOTIFY PLAYER</h4>
+          <iframe style="border-radius:8px" src="https://open.spotify.com/embed/track/3n3Pp9uj3P233zL8B1eR3N?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
+        <!-- Instagram Share Generator -->
+        <div class="instagram-box">
+          <h4>📸 INSTAGRAM BADGE GENERATOR</h4>
+          <p>Share your newly mastered track on IG Stories!</p>
+          <button id="generateIgBtn" class="ig-btn">GENERATE IG STORY TAG (@GANZOSUIPRATI)</button>
+        </div>
       </div>
-
     </section>
 
   </main>
