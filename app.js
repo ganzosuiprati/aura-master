@@ -169,3 +169,98 @@ function updateSeekbar() {
         pauseOffset = 0;
     }
 }
+// Funzione per l'esportazione in WAV
+document.getElementById('export-btn').addEventListener('click', () => {
+    if (!audioBuffer) {
+        alert("Carica prima un file audio!");
+        return;
+    }
+
+    // Renderizza l'audio elaborato offline per creare il file finale
+    const offlineCtx = new OfflineAudioContext(
+        audioBuffer.numberOfChannels,
+        audioBuffer.length,
+        audioBuffer.sampleRate
+    );
+
+    const source = offlineCtx.createBufferSource();
+    source.buffer = audioBuffer;
+
+    const lowEq = offlineCtx.createBiquadFilter();
+    lowEq.type = 'lowshelf';
+    lowEq.frequency.value = 100;
+    lowEq.gain.value = lowEqNode ? lowEqNode.gain.value : 0;
+
+    const highEq = offlineCtx.createBiquadFilter();
+    highEq.type = 'highshelf';
+    highEq.frequency.value = 8000;
+    highEq.gain.value = highEqNode ? highEqNode.gain.value : 0;
+
+    const comp = offlineCtx.createDynamicsCompressor();
+    comp.threshold.value = compressorNode ? compressorNode.threshold.value : -16;
+    comp.knee.value = 10;
+    comp.ratio.value = 3;
+    comp.attack.value = 0.01;
+    comp.release.value = 0.1;
+
+    const gain = offlineCtx.createGain();
+    gain.gain.value = masterGainNode ? masterGainNode.gain.value : 1.2;
+
+    source.connect(lowEq);
+    lowEq.connect(highEq);
+    highEq.connect(comp);
+    comp.connect(gain);
+    gain.connect(offlineCtx.destination);
+
+    source.start(0);
+
+    offlineCtx.startRendering().then((renderedBuffer) => {
+        const wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
+        const url = URL.createObjectURL(wavBlob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'AuraMaster_' + (fileNameDisplay.textContent || 'master.wav');
+        anchor.click();
+    });
+});
+
+// Helper per convertire l'AudioBuffer in formato WAV
+function bufferToWave(abuffer, len) {
+    let numOfChan = abuffer.numberOfChannels,
+        length = len * numOfChan * 2 + 44,
+        buffer = new ArrayBuffer(length),
+        view = new DataView(buffer),
+        channels = [], i, sample,
+        offset = 0,
+        pos = 0;
+
+    function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+    function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+
+    setUint32(0x46464952); // "RIFF"
+    setUint32(length - 8); 
+    setUint32(0x45564157); // "WAVE"
+    setUint32(0x20746d66); // "fmt " chunk
+    setUint32(16);         // length = 16
+    setUint16(1);          // PCM
+    setUint16(numOfChan);
+    setUint32(abuffer.sampleRate);
+    setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+    setUint16(numOfChan * 2);                      // block-align
+    setUint16(16);                                 // 16-bit
+    setUint32(0x61746164); // "data" chunk
+    setUint32(length - pos - 4);
+
+    for (i = 0; i < abuffer.numberOfChannels; i++) channels.push(abuffer.getChannelData(i));
+
+    while (offset < len) {
+        for (i = 0; i < numOfChan; i++) {
+            sample = Math.max(-1, Math.min(1, channels[i][offset]));
+            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+            view.setInt16(pos, sample, true);
+            pos += 2;
+        }
+        offset++;
+    }
+    return new Blob([buffer], { type: "audio/wav" });
+}
