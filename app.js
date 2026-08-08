@@ -7,6 +7,7 @@ let isBypassed = false;
 let startTime = 0;
 let pauseOffset = 0;
 
+// UI Elements
 const audioInput = document.getElementById('audio-input');
 const dropZone = document.getElementById('drop-zone');
 const dashboard = document.getElementById('dashboard');
@@ -14,6 +15,18 @@ const fileNameDisplay = document.getElementById('file-name');
 const playBtn = document.getElementById('play-btn');
 const abBtn = document.getElementById('ab-btn');
 const seekbar = document.getElementById('seekbar');
+const reuploadBtn = document.getElementById('reupload-btn');
+
+// Sliders and Readouts
+const loudnessSlider = document.getElementById('loudness');
+const warmthSlider = document.getElementById('warmth');
+const claritySlider = document.getElementById('clarity');
+const widthSlider = document.getElementById('width');
+
+const valLoudness = document.getElementById('val-loudness');
+const valWarmth = document.getElementById('val-warmth');
+const valClarity = document.getElementById('val-clarity');
+const valWidth = document.getElementById('val-width');
 
 function initAudio() {
     if (!audioCtx) {
@@ -22,6 +35,11 @@ function initAudio() {
 }
 
 audioInput.addEventListener('change', handleFile);
+reuploadBtn.addEventListener('click', () => {
+    if (isPlaying) pauseAudio();
+    audioInput.click();
+});
+
 function handleFile(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -59,7 +77,9 @@ function setupAudioChain() {
     compressorNode.release.value = 0.1;
 
     masterGainNode = audioCtx.createGain();
-    masterGainNode.gain.value = 1.2;
+    
+    // Apply initial slider values
+    updateParameters();
 
     lowEqNode.connect(highEqNode);
     highEqNode.connect(compressorNode);
@@ -67,12 +87,32 @@ function setupAudioChain() {
     masterGainNode.connect(audioCtx.destination);
 }
 
+function updateParameters() {
+    if (!lowEqNode) return;
+    
+    const wVal = (warmthSlider.value - 50) / 5;
+    const cVal = (claritySlider.value - 50) / 5;
+    const lVal = 0.5 + (loudnessSlider.value / 50);
+
+    lowEqNode.gain.value = wVal;
+    highEqNode.gain.value = cVal;
+    masterGainNode.gain.value = lVal;
+
+    valWarmth.textContent = (wVal >= 0 ? '+' : '') + wVal.toFixed(1) + ' dB';
+    valClarity.textContent = (cVal >= 0 ? '+' : '') + cVal.toFixed(1) + ' dB';
+    valLoudness.textContent = '+' + ((lVal - 1) * 6).toFixed(1) + ' dB';
+    valWidth.textContent = (widthSlider.value * 2) + '%';
+}
+
+// Slider Input Listeners
+[warmthSlider, claritySlider, loudnessSlider, widthSlider].forEach(slider => {
+    slider.addEventListener('input', updateParameters);
+});
+
+// Play / Pause Logic
 playBtn.addEventListener('click', () => {
-    if (isPlaying) {
-        pauseAudio();
-    } else {
-        playAudio();
-    }
+    if (isPlaying) pauseAudio();
+    else playAudio();
 });
 
 function playAudio() {
@@ -89,7 +129,7 @@ function playAudio() {
     sourceNode.start(0, pauseOffset);
     startTime = audioCtx.currentTime - pauseOffset;
     isPlaying = true;
-    playBtn.textContent = '⏸ Pausa';
+    playBtn.textContent = '⏸ PAUSE';
     updateSeekbar();
 }
 
@@ -99,14 +139,19 @@ function pauseAudio() {
         pauseOffset = audioCtx.currentTime - startTime;
     }
     isPlaying = false;
-    playBtn.textContent = '▶ Play';
+    playBtn.textContent = '▶ PLAY';
 }
 
+// A/B Toggle
 abBtn.addEventListener('click', () => {
     isBypassed = !isBypassed;
-    abBtn.textContent = isBypassed ? 'Master Processing [BYPASS]' : 'Master Processing [ON]';
-    abBtn.style.borderColor = isBypassed ? '#ff4757' : '#00c6ff';
-    abBtn.style.color = isBypassed ? '#ff4757' : '#00c6ff';
+    if (isBypassed) {
+        abBtn.textContent = 'Processing: BYPASSED';
+        abBtn.classList.add('bypassed');
+    } else {
+        abBtn.textContent = 'Processing: ENGAGED';
+        abBtn.classList.remove('bypassed');
+    }
 
     if (isPlaying) {
         pauseAudio();
@@ -114,48 +159,37 @@ abBtn.addEventListener('click', () => {
     }
 });
 
-document.getElementById('warmth').addEventListener('input', (e) => {
-    if (lowEqNode) lowEqNode.gain.value = (e.target.value - 50) / 5;
-});
-
-document.getElementById('clarity').addEventListener('input', (e) => {
-    if (highEqNode) highEqNode.gain.value = (e.target.value - 50) / 5;
-});
-
-document.getElementById('loudness').addEventListener('input', (e) => {
-    if (masterGainNode) masterGainNode.gain.value = 0.5 + (e.target.value / 50);
-});
+// Presets Configurator
+const presets = {
+    balanced:    { warmth: 50, clarity: 50, loudness: 55, width: 50 },
+    warm_tape:   { warmth: 75, clarity: 35, loudness: 50, width: 45 },
+    punchy_club: { warmth: 65, clarity: 65, loudness: 75, width: 60 },
+    crisp_pop:   { warmth: 40, clarity: 80, loudness: 65, width: 55 },
+    acoustic:    { warmth: 45, clarity: 60, loudness: 45, width: 50 },
+    lofi:        { warmth: 85, clarity: 20, loudness: 40, width: 35 },
+    heavy_metal: { warmth: 60, clarity: 70, loudness: 85, width: 65 },
+    vocal_master:{ warmth: 35, clarity: 75, loudness: 60, width: 40 },
+    trap_sub:    { warmth: 90, clarity: 55, loudness: 80, width: 55 },
+    airy_vocal:  { warmth: 30, clarity: 90, loudness: 50, width: 50 },
+    jazz:        { warmth: 60, clarity: 45, loudness: 40, width: 45 },
+    stereo_widen:{ warmth: 50, clarity: 60, loudness: 50, width: 90 }
+};
 
 document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
         document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
 
-        const preset = e.target.dataset.preset;
-        applyPreset(preset);
+        const p = presets[e.target.dataset.preset];
+        if (p) {
+            warmthSlider.value = p.warmth;
+            claritySlider.value = p.clarity;
+            loudnessSlider.value = p.loudness;
+            widthSlider.value = p.width;
+            updateParameters();
+        }
     });
 });
-
-function applyPreset(preset) {
-    if (!lowEqNode) return;
-    if (preset === 'balanced') {
-        lowEqNode.gain.value = 1;
-        highEqNode.gain.value = 1;
-        compressorNode.threshold.value = -16;
-    } else if (preset === 'warm') {
-        lowEqNode.gain.value = 4;
-        highEqNode.gain.value = -1;
-        compressorNode.threshold.value = -14;
-    } else if (preset === 'punchy') {
-        lowEqNode.gain.value = 3;
-        highEqNode.gain.value = 2;
-        compressorNode.threshold.value = -20;
-    } else if (preset === 'bright') {
-        lowEqNode.gain.value = -1;
-        highEqNode.gain.value = 5;
-        compressorNode.threshold.value = -15;
-    }
-}
 
 function updateSeekbar() {
     if (!isPlaying) return;
@@ -165,18 +199,18 @@ function updateSeekbar() {
         requestAnimationFrame(updateSeekbar);
     } else {
         isPlaying = false;
-        playBtn.textContent = '▶ Play';
+        playBtn.textContent = '▶ PLAY';
         pauseOffset = 0;
     }
 }
-// Funzione per l'esportazione in WAV
+
+// High-Res WAV Export Engine
 document.getElementById('export-btn').addEventListener('click', () => {
     if (!audioBuffer) {
-        alert("Carica prima un file audio!");
+        alert("Please load an audio track first!");
         return;
     }
 
-    // Renderizza l'audio elaborato offline per creare il file finale
     const offlineCtx = new OfflineAudioContext(
         audioBuffer.numberOfChannels,
         audioBuffer.length,
@@ -200,8 +234,6 @@ document.getElementById('export-btn').addEventListener('click', () => {
     comp.threshold.value = compressorNode ? compressorNode.threshold.value : -16;
     comp.knee.value = 10;
     comp.ratio.value = 3;
-    comp.attack.value = 0.01;
-    comp.release.value = 0.1;
 
     const gain = offlineCtx.createGain();
     gain.gain.value = masterGainNode ? masterGainNode.gain.value : 1.2;
@@ -219,37 +251,27 @@ document.getElementById('export-btn').addEventListener('click', () => {
         const url = URL.createObjectURL(wavBlob);
         const anchor = document.createElement('a');
         anchor.href = url;
-        anchor.download = 'AuraMaster_' + (fileNameDisplay.textContent || 'master.wav');
+        anchor.download = 'AuraMaster_HD_' + (fileNameDisplay.textContent || 'master.wav');
         anchor.click();
     });
 });
 
-// Helper per convertire l'AudioBuffer in formato WAV
 function bufferToWave(abuffer, len) {
     let numOfChan = abuffer.numberOfChannels,
         length = len * numOfChan * 2 + 44,
         buffer = new ArrayBuffer(length),
         view = new DataView(buffer),
-        channels = [], i, sample,
-        offset = 0,
-        pos = 0;
+        channels = [], i, sample, offset = 0, pos = 0;
 
     function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
     function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
 
-    setUint32(0x46464952); // "RIFF"
-    setUint32(length - 8); 
-    setUint32(0x45564157); // "WAVE"
-    setUint32(0x20746d66); // "fmt " chunk
-    setUint32(16);         // length = 16
-    setUint16(1);          // PCM
-    setUint16(numOfChan);
+    setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157);
+    setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan);
     setUint32(abuffer.sampleRate);
-    setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
-    setUint16(numOfChan * 2);                      // block-align
-    setUint16(16);                                 // 16-bit
-    setUint32(0x61746164); // "data" chunk
-    setUint32(length - pos - 4);
+    setUint32(abuffer.sampleRate * 2 * numOfChan);
+    setUint16(numOfChan * 2); setUint16(16);
+    setUint32(0x61746164); setUint32(length - pos - 4);
 
     for (i = 0; i < abuffer.numberOfChannels; i++) channels.push(abuffer.getChannelData(i));
 
